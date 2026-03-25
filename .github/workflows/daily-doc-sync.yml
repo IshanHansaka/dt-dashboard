@@ -1,0 +1,45 @@
+name: Sync Active Incidents
+
+on:
+  schedule:
+    - cron: "30 18 * * *" # 18:30 UTC = 12:00 AM in Sri Lanka
+  workflow_dispatch: # Allows manual triggering from the GitHub Actions UI
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  poll-and-sync:
+    name: Poll & Sync Incident Docs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Centralized Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Script
+        uses: actions/github-script@v7
+        with:
+          script: |
+            require('ts-node/register');
+
+            const script = require('./.github/scripts/daily-doc-sync.ts');
+            const { google } = require('googleapis');
+
+            await script({ github, context, core, google: google, });
+        env:
+          GCP_CLIENT_ID: ${{ secrets.GCP_CLIENT_ID }}
+          GCP_CLIENT_SECRET: ${{ secrets.GCP_CLIENT_SECRET }}
+          GCP_REFRESH_TOKEN: ${{ secrets.GCP_REFRESH_TOKEN }}
+          ISSUE_PROJECT_ACCESS_TOKEN: ${{ secrets.ISSUE_PROJECT_ACCESS_TOKEN }}
+          PROJECT_NUMBER: "9"
