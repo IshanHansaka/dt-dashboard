@@ -53,7 +53,7 @@ This project implements a daily synchronization workflow that:
 
 ### Required Secrets
 
-Configure the following secrets in your GitHub repository settings:
+Configure the following secrets and variable in your GitHub repository settings:
 
 | Secret Name                  | Description                                     |
 | ---------------------------- | ----------------------------------------------- |
@@ -62,12 +62,9 @@ Configure the following secrets in your GitHub repository settings:
 | `GCP_REFRESH_TOKEN`          | Google OAuth2 Refresh Token (for server access) |
 | `ISSUE_PROJECT_ACCESS_TOKEN` | GitHub PAT with `project` and `repo` scopes     |
 
-The workflows are pre-configured with the following default values. If you need to change them, update the `env` section in each workflow file:
-
-```yaml
-env:
-  PROJECT_NUMBER: "9" # GitHub Project number
-```
+| Variable Name    | Description           |
+| ---------------- | --------------------- |
+| `PROJECT_NUMBER` | GitHub Project number |
 
 ### Setup Instructions
 
@@ -96,7 +93,7 @@ env:
 - **Posts a comment** on the issue listing all detected changes
 - **Updates** the issue body and project board fields in parallel
 
-## 🔧 Configuration
+## Configuration
 
 ### Modifying the Schedule
 

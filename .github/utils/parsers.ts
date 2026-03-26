@@ -26,7 +26,6 @@ import { GOOGLE_DOC_FIELD_NAMES } from "./field-mappings";
 
 /**
  * Extracts the Incident Number from the Markdown header.
- * Looks for patterns like "Security Incident Report: WSO2-SEC-IR-2025-0000"
  * Falls back to the GitHub Issue number if the header is missing or altered.
  */
 export function extractIncidentNumber(markdown: string): string {
