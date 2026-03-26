@@ -49,7 +49,7 @@ import { OctokitClient } from "../types/github-types";
  * Daily Google Doc Sync
  *
  * This script runs on a daily schedule to keep mirrored issues in sync with
- * their linked Google Docs. For each open issue in the centralized repo:
+ * their linked Google Docs. For each open issue in the centralised repo:
  * 1. Gets all open issues and checks for a linked Google Doc URL in the body
  * 2. Checks if the linked Google Doc was modified in the last 24 hours
  * 3. Extracts updated incident fields from the Google Doc

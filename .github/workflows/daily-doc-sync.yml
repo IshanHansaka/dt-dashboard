@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Centralized Repository
+      - name: Checkout Centralised Repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js

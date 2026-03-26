@@ -112,7 +112,7 @@ export function extractOriginIssueDetails(body: string): OriginIssueDetails {
 
 /**
  * Extracts all incident field data from Google Doc markdown content.
- * Uses the centralized field configuration to ensure consistency.
+ * Uses the centralised field configuration to ensure consistency.
  */
 export function extractDocDetails(markdownText: string): IncidentFieldData {
   return {
