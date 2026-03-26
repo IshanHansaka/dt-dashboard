@@ -1,6 +1,6 @@
 # Security Incident Sync
 
-A robust automation system that synchronizes security incident data between Google Docs, GitHub Issues, and GitHub Projects boards. This system automatically polls Google Docs for updates and maintains centralized incident tracking across your organization.
+A robust automation system that synchronizes security incident data between Google Docs, GitHub Issues, and GitHub Projects boards. This system automatically polls Google Docs for updates and maintains centralised incident tracking across your organization.
 
 ## Overview
 
@@ -27,26 +27,26 @@ This project implements a daily synchronization workflow that:
 ```
 .github/
 ├── workflows/
-│   └── daily-doc-sync.yml          # GitHub Actions workflow definition
+│   └── daily-doc-sync.yml
 ├── scripts/
-│   └── daily-doc-sync.ts           # Main orchestration logic
+│   └── daily-doc-sync.ts
 ├── services/
-│   ├── github-services.ts           # GitHub REST API (issues, comments)
-│   ├── google-services.ts          # Google Drive/Docs API integration
-│   ├── project-v2-services.ts      # GitHub Projects V2 GraphQL API
+│   ├── github-services.ts
+│   ├── google-services.ts
+│   ├── project-v2-services.ts
 │   └── template-services.ts        # Issue template loading & substitution
 ├── utils/
-│   ├── consts.ts                   # Regex patterns and constants
-│   ├── dates.ts                    # Date formatting and validation
-│   ├── field-mappings.ts           # Field mapping configuration
-│   ├── issue-helpers.ts            # Incident data extraction & diffing
-│   └── parsers.ts                  # Markdown and data extraction utilities
+│   ├── consts.ts
+│   ├── dates.ts
+│   ├── field-mappings.ts
+│   ├── issue-helpers.ts
+│   └── parsers.ts
 ├── types/
-│   ├── incident-field-types.ts     # Incident field data & field mapping types
-│   ├── issue-data-types.ts         # GitHub issue type definitions
-│   └── project-v2-types.ts         # Projects V2 GraphQL type definitions
+│   ├── incident-field-types.ts
+│   ├── issue-data-types.ts
+│   └── project-v2-types.ts
 └── templates/
-    └── issue-description.md        # Issue body template with placeholders
+    └── issue-description.md
 ```
 
 ## Getting Started
@@ -61,7 +61,13 @@ Configure the following secrets in your GitHub repository settings:
 | `GCP_CLIENT_SECRET`          | Google Cloud OAuth2 Client Secret               |
 | `GCP_REFRESH_TOKEN`          | Google OAuth2 Refresh Token (for server access) |
 | `ISSUE_PROJECT_ACCESS_TOKEN` | GitHub PAT with `project` and `repo` scopes     |
-| `PROJECT_NUMBER`             | GitHub Project number                           |
+
+The workflows are pre-configured with the following default values. If you need to change them, update the `env` section in each workflow file:
+
+```yaml
+env:
+  PROJECT_NUMBER: "9" # GitHub Project number
+```
 
 ### Setup Instructions
 
@@ -110,13 +116,6 @@ Modify the polling window in [.github/scripts/daily-doc-sync.ts](.github/scripts
 const isUpdated = await wasDocUpdatedRecently(docId, drive, 24); // Change 24 to desired hours
 ```
 
-### Adding New Fields
-
-1. Add extraction logic in [.github/utils/parsers.ts](.github/utils/parsers.ts)
-2. Add the field to the extraction in [.github/scripts/daily-doc-sync.ts](.github/scripts/daily-doc-sync.ts#L147-L165)
-3. Add comparison and update logic after line 200
-4. Update the template in [.github/templates/issue-description.md](.github/templates/issue-description.md)
-
 ## Project Fields
 
 The system syncs the following fields to GitHub Projects:
@@ -135,3 +134,15 @@ The system syncs the following fields to GitHub Projects:
 | Assignment Group/Team             | Single Select | "Incident owning team (Custodian)" |
 | Service/Product/Scope/system/Tool | Text          | "Affected system(s)"               |
 | Attachment options                | Text          | "Incident report located at"       |
+
+## Related Resources
+
+- [GitHub Actions Documentation](https://docs.github.com/en/actions)
+- [GitHub Projects V2 GraphQL API](https://docs.github.com/en/graphql/reference/objects#projectv2)
+- [Google Drive API Reference](https://developers.google.com/drive/api/v3/reference)
+- [TypeScript Documentation](https://www.typescriptlang.org/docs/)
+- [OAuth 2.0 Playground](https://developers.google.com/oauthplayground/)
+
+## License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
