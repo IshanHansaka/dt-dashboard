@@ -153,14 +153,13 @@ export async function getProjectItemFieldValues(
 
 /**
  * Updates a text-type custom field on a GitHub Projects V2 item.
- * Skips updates if value is missing or a placeholder ("Not Found", "Not Specified").
  */
 export async function updateProjectTextField(
   graphql: GraphQLFunction,
   projectId: string,
   itemId: string,
   fieldId: string | undefined,
-  value: string,
+  value: string | null,
   fieldName?: string,
 ): Promise<void> {
   if (!fieldId) return;
@@ -189,30 +188,25 @@ export async function updateProjectTextField(
       value: finalValue,
     });
 
-    console.log(`   Set ${fieldName}: ${value}`);
+    console.log(`   Set ${fieldName}: [value set]`);
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error(
-      `   Failed to set ${fieldName} to "${value}": ${errorMessage}`,
-    );
+    console.error(`   Failed to set ${fieldName}: ${errorMessage}`);
     throw error;
   }
 }
 
 /**
  * Updates a single-select custom field on a GitHub Projects V2 item.
- * Matches the text value to one of the available options and uses its ID.
- * Skips updates if value is missing, a placeholder, or doesn't match any option.
- *
- * @param field - The field object containing id, name, and options
- * @param value - The text value to match against options
+ * If the provided value is missing or a placeholder, it normalises the value
+ * to "Not Specified" and applies that option if it exists on the board.
  */
 export async function updateProjectSingleSelectField(
   graphql: GraphQLFunction,
   projectId: string,
   itemId: string,
   field: ProjectV2FieldNode | undefined,
-  value: string,
+  value: string | null,
   fieldName?: string,
 ): Promise<void> {
   if (!field || !field.id) {
@@ -222,7 +216,7 @@ export async function updateProjectSingleSelectField(
     return;
   }
 
-  let finalValue = value;
+  let finalValue = value || "Not Specified";
 
   if (
     !value ||
@@ -265,11 +259,11 @@ export async function updateProjectSingleSelectField(
       optionId: matchingOption.id,
     });
 
-    console.log(`   Set ${fieldName || field.name}: ${value}`);
+    console.log(`   Set ${fieldName || field.name}: [value set]`);
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error(
-      `   Failed to set ${fieldName || field.name} to "${value}": ${errorMessage}`,
+      `   Failed to set ${fieldName || field.name}: ${errorMessage}`,
     );
     throw error;
   }
@@ -277,8 +271,7 @@ export async function updateProjectSingleSelectField(
 
 /**
  * Updates a date-type custom field on a GitHub Projects V2 item.
- * Automatically extracts the YYYY-MM-DD portion from messy timestamps
- * (e.g., "2025-06-01 12:53 GMT+5:30" becomes "2025-06-01").
+ * Automatically clears the field entirely if the value is missing or null.
  */
 export async function updateProjectDateField(
   graphql: GraphQLFunction,
@@ -290,35 +283,40 @@ export async function updateProjectDateField(
 ): Promise<void> {
   if (!fieldId) return;
   if (!value || value === "Not Found" || value === "Not Specified") {
-    console.log(
-      `   Skipping ${fieldName || "date field"}: no valid date value`,
-    );
-    return;
+    value = null;
   }
 
   try {
-    const mutation = `
-      mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: Date!) {
-        updateProjectV2ItemFieldValue(input: {
-          projectId: $projectId,
-          itemId: $itemId,
-          fieldId: $fieldId,
-          value: { date: $value }
-        }) { projectV2Item { id } }
-      }
-    `;
-
-    await graphql<UpdateFieldResponse>(mutation, {
-      projectId,
-      itemId,
-      fieldId,
-      value,
-    });
-    console.log(`   Set ${fieldName || "date"}: ${value}`);
+    if (value) {
+      const updateMutation = `
+        mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: Date!) {
+          updateProjectV2ItemFieldValue(input: {
+            projectId: $projectId,
+            itemId: $itemId,
+            fieldId: $fieldId,
+            value: { date: $value }
+          }) { projectV2Item { id } }
+        }
+      `;
+      await graphql(updateMutation, { projectId, itemId, fieldId, value });
+      console.log(`   Set ${fieldName || "date"}: [value set]`);
+    } else {
+      const clearMutation = `
+        mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!) {
+          clearProjectV2ItemFieldValue(input: {
+            projectId: $projectId,
+            itemId: $itemId,
+            fieldId: $fieldId
+          }) { projectV2Item { id } }
+        }
+      `;
+      await graphql(clearMutation, { projectId, itemId, fieldId });
+      console.log(`   Cleared ${fieldName || "date"} (value was empty)`);
+    }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error(
-      `   Failed to set ${fieldName || "date field"} to "${value}": ${errorMessage}`,
+      `   Failed to set ${fieldName || "date field"}: ${errorMessage}`,
     );
     throw error;
   }
