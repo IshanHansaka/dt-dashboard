@@ -44,12 +44,13 @@ export async function diffAndUpdateProjectFields(
   const changedFieldsLog: string[] = [];
 
   for (const mapping of PROJECT_FIELD_MAPPINGS) {
-    const oldValue = oldData[mapping.dataKey] || "Not Specified";
-    let newValue = newData[mapping.dataKey] || "Not Specified";
+    let oldValue: string | null = oldData[mapping.dataKey];
+    let newValue: string | null = newData[mapping.dataKey];
 
     // Format dates to GitHub's expected format for comparison and updating
     if (mapping.fieldType === ProjectFieldType.DATE) {
-      newValue = formatDateForGitHub(newValue) || "Not Specified";
+      oldValue = formatDateForGitHub(oldValue);
+      newValue = formatDateForGitHub(newValue);
     }
 
     if (oldValue === newValue) continue;
@@ -93,7 +94,7 @@ export async function diffAndUpdateProjectFields(
             projectId,
             itemId,
             fieldId,
-            formatDateForGitHub(newValue),
+            newValue,
             mapping.projectFieldName,
           ),
         );
@@ -102,7 +103,6 @@ export async function diffAndUpdateProjectFields(
   }
 
   await Promise.all(updatePromises);
-
   return changedFieldsLog;
 }
 

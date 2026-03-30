@@ -19,7 +19,7 @@ import { DATE_EXTRACTION_REGEX } from "./consts";
  * Formats date strings to strict YYYY-MM-DD format required by GitHub Projects API.
  * Validates the date is real (e.g., rejects Feb 30) to prevent API errors.
  */
-export function formatDateForGitHub(dateString: string): string | null {
+export function formatDateForGitHub(dateString: string | null): string | null {
   if (
     !dateString ||
     dateString === "Not Found" ||
