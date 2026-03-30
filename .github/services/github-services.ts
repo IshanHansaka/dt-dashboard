@@ -13,19 +13,19 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import { GitHubIssue, OctokitClient } from "../types/github-types";
+import { GitHubIssue, GitHubClient } from "../types/github-types";
 
 /**
  * Posts a comment on a GitHub issue.
  */
 export async function createIssueComment(
-  client: OctokitClient,
+  github: GitHubClient,
   owner: string,
   repo: string,
   issueNumber: number,
   body: string,
 ): Promise<void> {
-  await client.rest.issues.createComment({
+  await github.rest.issues.createComment({
     owner,
     repo,
     issue_number: issueNumber,
@@ -37,13 +37,13 @@ export async function createIssueComment(
  * Updates a GitHub issue's body.
  */
 export async function updateIssueBody(
-  client: OctokitClient,
+  github: GitHubClient,
   owner: string,
   repo: string,
   issueNumber: number,
   body: string,
 ): Promise<void> {
-  await client.rest.issues.update({
+  await github.rest.issues.update({
     owner,
     repo,
     issue_number: issueNumber,
@@ -56,11 +56,11 @@ export async function updateIssueBody(
  * Automatically handles pagination to bypass the 30-item limit.
  */
 export async function getAllOpenIssues(
-  client: OctokitClient,
+  github: GitHubClient,
   owner: string,
   repo: string,
 ): Promise<GitHubIssue[]> {
-  const response = await client.paginate(client.rest.issues.listForRepo, {
+  const response = await github.paginate(github.rest.issues.listForRepo, {
     owner,
     repo,
     state: "open",

@@ -26,9 +26,9 @@ export interface GitHubIssue {
 }
 
 /**
- * Minimal type definition for the GitHub Octokit client used in this project.
+ * Minimal type definition for the GitHub client used in this project.
  */
-export interface OctokitClient {
+export interface GitHubClient {
   rest: {
     issues: {
       createComment(params: {

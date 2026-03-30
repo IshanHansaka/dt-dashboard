@@ -43,7 +43,6 @@ import {
   extractProjectDetails,
   validateEnv,
 } from "../utils/issue-helpers";
-import { OctokitClient } from "../types/github-types";
 
 /**
  * Daily Google Doc Sync
@@ -62,16 +61,12 @@ module.exports = async ({
   core,
   google,
   github,
-  getOctokit,
 }: any): Promise<void> => {
   try {
     core.info("Starting Daily Google Doc Sync...");
 
     // Validate environment variables
     const config = {
-      ISSUE_PROJECT_ACCESS_TOKEN: (
-        process.env.ISSUE_PROJECT_ACCESS_TOKEN || ""
-      ).trim(),
       PROJECT_NUMBER: (process.env.PROJECT_NUMBER || "").trim(),
       GCP_CLIENT_ID: (process.env.GCP_CLIENT_ID || "").trim(),
       GCP_CLIENT_SECRET: (process.env.GCP_CLIENT_SECRET || "").trim(),
@@ -98,16 +93,10 @@ module.exports = async ({
     auth.setCredentials({ refresh_token: config.GCP_REFRESH_TOKEN });
     const googleDrive = google.drive({ version: "v3", auth });
 
-    // Create GitHub client
-    const githubClient: OctokitClient =
-      typeof getOctokit === "function"
-        ? getOctokit(config.ISSUE_PROJECT_ACCESS_TOKEN)
-        : new github.constructor({ auth: config.ISSUE_PROJECT_ACCESS_TOKEN });
-
     core.info(`Fetching all open issues in ${targetOwner}/${targetRepo}...`);
 
     const openIssues = await getAllOpenIssues(
-      githubClient,
+      github,
       targetOwner,
       targetRepo,
     );
@@ -118,7 +107,7 @@ module.exports = async ({
 
     // Fetch project metadata
     const projectData = await getProjectData(
-      githubClient.graphql,
+      github.graphql,
       targetOwner,
       projectNumber,
     );
@@ -156,13 +145,13 @@ module.exports = async ({
 
         // Ensure issue is on the project board before updating fields
         const itemId = await assignIssueToProject(
-          githubClient.graphql,
+          github.graphql,
           projectData.id,
           issue.node_id,
         );
 
         const projectFieldValues = await getProjectItemFieldValues(
-          githubClient.graphql,
+          github.graphql,
           itemId,
         );
         const oldIncidentDetails = extractProjectDetails(projectFieldValues);
@@ -170,7 +159,7 @@ module.exports = async ({
 
         // Compare old vs new data, only update changed fields
         const changedFieldsLog = await diffAndUpdateProjectFields(
-          githubClient.graphql,
+          github.graphql,
           projectData.id,
           itemId,
           projectData.fields.nodes,
@@ -205,7 +194,7 @@ module.exports = async ({
         );
 
         await updateIssueBody(
-          githubClient,
+          github,
           targetOwner,
           targetRepo,
           issue.number,
@@ -217,7 +206,7 @@ module.exports = async ({
           `### Changes Detected:\n${changedFieldsLog.join("\n")}`;
 
         await createIssueComment(
-          githubClient,
+          github,
           targetOwner,
           targetRepo,
           issue.number,
