@@ -34,24 +34,6 @@ export async function createIssueComment(
 }
 
 /**
- * Updates a GitHub issue's body.
- */
-export async function updateIssueBody(
-  github: GitHubClient,
-  owner: string,
-  repo: string,
-  issueNumber: number,
-  body: string,
-): Promise<void> {
-  await github.rest.issues.update({
-    owner,
-    repo,
-    issue_number: issueNumber,
-    body,
-  });
-}
-
-/**
  * Gets all open issues from a GitHub repository.
  * Automatically handles pagination to bypass the 30-item limit.
  */

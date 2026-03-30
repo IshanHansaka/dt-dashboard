@@ -20,23 +20,13 @@ import {
 import {
   getAllOpenIssues,
   createIssueComment,
-  updateIssueBody,
 } from "../services/github-services";
 import {
   assignIssueToProject,
   getProjectData,
   getProjectItemFieldValues,
 } from "../services/project-v2-services";
-import {
-  loadTemplate,
-  applyTemplateReplacements,
-  buildTemplateData,
-} from "../services/template-services";
-import {
-  extractOriginDescription,
-  extractOriginIssueDetails,
-  extractDocDetails,
-} from "../utils/parsers";
+import { extractDocDetails } from "../utils/parsers";
 import { GOOGLE_DOC_URL_REGEX } from "../utils/consts";
 import {
   diffAndUpdateProjectFields,
@@ -54,7 +44,7 @@ import {
  * 3. Extracts updated incident fields from the Google Doc
  * 4. Compares against existing issue data and updates only changed fields
  * 5. Syncs changed fields to the GitHub Project V2 board
- * 6. Updates the issue body and posts a change summary comment
+ * 6. Posts a change summary comment
  */
 module.exports = async ({
   context,
@@ -95,11 +85,7 @@ module.exports = async ({
 
     core.info(`Fetching all open issues in ${targetOwner}/${targetRepo}...`);
 
-    const openIssues = await getAllOpenIssues(
-      github,
-      targetOwner,
-      targetRepo,
-    );
+    const openIssues = await getAllOpenIssues(github, targetOwner, targetRepo);
 
     core.info(
       `Found ${openIssues.length} open issues. Checking for linked Google Docs and updates...`,
@@ -176,29 +162,6 @@ module.exports = async ({
 
         core.info(
           `   Updated ${changedFieldsLog.length} fields on project board.`,
-        );
-
-        // Rebuild issue body from template with updated incident data
-        const oldBody = issue.body || "";
-        const template = loadTemplate();
-        const replacements = buildTemplateData(
-          extractOriginDescription(oldBody),
-          extractOriginIssueDetails(oldBody),
-          newIncidentDetails,
-          docUrl,
-        );
-
-        const mirroredIssueBody = applyTemplateReplacements(
-          template,
-          replacements,
-        );
-
-        await updateIssueBody(
-          github,
-          targetOwner,
-          targetRepo,
-          issue.number,
-          mirroredIssueBody,
         );
 
         const commentBody =

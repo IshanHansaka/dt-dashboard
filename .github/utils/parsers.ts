@@ -14,13 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 import { IncidentFieldData } from "../types/incident-field-types";
-import { OriginIssueDetails } from "../types/github-types";
 import {
   INCIDENT_REPORT_HEADER_REGEX,
-  ISSUE_DESCRIPTION_REGEX,
   buildMarkdownTableRegex,
-  ORIGIN_ISSUE_DETAILS_REGEX,
-  ORIGIN_AUTHOR_REGEX,
 } from "./consts";
 import { GOOGLE_DOC_FIELD_NAMES } from "./field-mappings";
 
@@ -66,46 +62,6 @@ export function extractMarkdownTableField(
     return value;
   }
   return "Not Found";
-}
-
-/**
- * Extracts the multi-line description from the mirrored issue body.
- * Captures everything between the "### Description" header and the "## Security Incident Report" header.
- */
-export function extractOriginDescription(body: string): string {
-  if (!body) return "";
-
-  const match = body.match(ISSUE_DESCRIPTION_REGEX);
-  return match ? match[1].trim() : "";
-}
-
-/**
- * Extracts the original repo name, issue number, issue URL, and author
- * from the footer of the replicated issue body.
- */
-export function extractOriginIssueDetails(body: string): OriginIssueDetails {
-  const details: OriginIssueDetails = {
-    repoName: "",
-    number: null,
-    url: "",
-    author: "",
-  };
-
-  if (!body) return details;
-
-  const issueMatch = body.match(ORIGIN_ISSUE_DETAILS_REGEX);
-  if (issueMatch) {
-    details.repoName = issueMatch[1].trim();
-    details.number = parseInt(issueMatch[2], 10);
-    details.url = issueMatch[3].trim();
-  }
-
-  const authorMatch = body.match(ORIGIN_AUTHOR_REGEX);
-  if (authorMatch) {
-    details.author = authorMatch[1].trim();
-  }
-
-  return details;
 }
 
 /**

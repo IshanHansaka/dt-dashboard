@@ -37,13 +37,6 @@ export interface GitHubClient {
         issue_number: number;
         body: string;
       }): Promise<unknown>;
-      update(params: {
-        owner: string;
-        repo: string;
-        issue_number: number;
-        body?: string;
-        state?: string;
-      }): Promise<unknown>;
       listForRepo(params: {
         owner: string;
         repo: string;
@@ -53,16 +46,4 @@ export interface GitHubClient {
   };
   graphql: GraphQLFunction;
   paginate: (method: Function, params: object) => Promise<any[]>;
-}
-
-/**
- * Defines the structure of the original issue details extracted from GitHub.
- * This includes metadata about the issue and its repository.
- * This data is used to populate the incident template and for reference in comments.
- */
-export interface OriginIssueDetails {
-  repoName: string;
-  number: number | null;
-  url: string;
-  author: string;
 }
