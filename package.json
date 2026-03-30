@@ -1,0 +1,28 @@
+{
+  "name": "dt-dashboard",
+  "version": "1.0.0",
+  "description": "A robust automation system that synchronizes security incident data between Google Docs, GitHub Issues, and GitHub Projects boards. This system automatically polls Google Docs for updates and maintains centralised incident tracking across your organization.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wso2-incubator/dt-dashboard.git"
+  },
+  "keywords": [],
+  "author": "WSO2 LLC",
+  "license": "Apache-2.0",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/wso2-incubator/dt-dashboard/issues"
+  },
+  "homepage": "https://github.com/wso2-incubator/dt-dashboard#readme",
+  "dependencies": {
+    "googleapis": "^171.4.0",
+    "ts-node": "^10.9.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.9.3"
+  }
+}
